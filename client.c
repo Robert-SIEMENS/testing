@@ -17,8 +17,8 @@ int main(int argc, char const *argv[])
 
   if(argc < 3)
   { 
-   printf("Usage:%s <ip_address> <port>\n", argv[0]);
-   exit(EXIT_FAILURE);
+    printf("Usage:%s <ip_address> <port>\n", argv[0]);
+    exit(EXIT_FAILURE);
   }
 
   if((sock = socket(AF_INET, SOCK_STREAM, 0))<0)
@@ -42,30 +42,33 @@ int main(int argc, char const *argv[])
     perror("connect failed");
     exit(EXIT_FAILURE);
   }
+  
   printf("Connected to server: %s:%s\n", argv[1], argv[2]);
   while (1)
   { 
-  printf("> ");
-  fgets(command, MAX_COMMAND_SIZE, stdin);
-  command[strcspn(command, "\n")]=0;
-  if(strcmp(command, "disconnect") == 0)
-  {
-    send(sock, command, strlen(command), 0);
-    printf("Disconnected from server.\n");
-    break;
+    printf("> ");
+    fgets(command, MAX_COMMAND_SIZE, stdin);
+    command[strcspn(command, "\n")]=0;
+    if(strcmp(command, "disconnect") == 0)
+    {
+      send(sock, command, strlen(command), 0);
+      printf("Disconnected from server.\n");
+      break;
+    }
+    else if(strncmp(command, "shell ", 6) == 0)
+    {
+      send(sock, command, strlen(command), 0);
+      printf("%s\n", response);
+    }
+    else
+    {
+      printf("Invalid command");
+    }
+    
+    memset(command, 0, sizeof(command));
+    memset(response, 0, sizeof(response));
   }
-  else if(strncmp(command, "shell ", 6) == 0)
-  {
-   send(sock, command, strlen(command), 0);
-   printf("%s\n", response);
-  }
-  else
-  {
-  printf("Invalid command");
-  }
-  memset(command, 0, sizeof(command));
-  memset(response, 0, sizeof(response));
-  }
+  
   close(sock);
   return 0;
 }
