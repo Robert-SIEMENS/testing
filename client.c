@@ -25,7 +25,6 @@ int main(int argc, char const *argv[])
   {
     perror("socket failed");
     exit(EXIT_FAILURE);
-
   }
 
   serv_addr.sin_family = AF_INET;
@@ -63,15 +62,10 @@ int main(int argc, char const *argv[])
   else
   {
   printf("Invalid command");
-  
   }
   memset(command, 0, sizeof(command));
   memset(response, 0, sizeof(response));
-  
-  
   }
   close(sock);
   return 0;
-
-
 }
