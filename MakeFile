@@ -13,7 +13,7 @@ client: client.o
 	$(CC) -o client client.o
 
 client.o: client.c
-  $(CC) $(CFLAGS) -c client.c
+	$(CC) $(CFLAGS) -c client.c
 
 clean:
 	rm -f *.o server client
