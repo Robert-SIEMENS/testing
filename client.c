@@ -51,7 +51,6 @@ int main(int argc, char const *argv[])
         command[strcspn(command, "\n")]=0;
         if(strcmp(command, "disconnect") == 0)
         {
-            send(sock, command, strlen(command), 0);
             printf("Disconnected from server.\n");
             break;
         }
