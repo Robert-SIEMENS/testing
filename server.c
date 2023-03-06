@@ -50,23 +50,29 @@ int main()
     // Accept incoming connections
     while (1) 
     {
+    	printf("\nListening for incoming connection...\n");
         client_socket = accept(server_socket, (struct sockaddr*) &client_address, &client_address_length);
         if (client_socket == -1)
         {
             printf("Failed to accept incoming connection\n");
-            continue;
+            //continue;
+            break;
         }
+        printf("Connection accepted.\n");
         
         // Receive the command from the client
         memset(buffer, 0, sizeof(buffer));
+        while(1){
         if (recv(client_socket, buffer, sizeof(buffer), 0) == -1) 
         {
             printf("Failed to receive command from client\n");
-            continue;
+            // continue;
+            break;
         }
         
         // Handle the command
         handle_command(client_socket, buffer);
+        }
         
         // Close the client socket
         close(client_socket);
@@ -82,23 +88,37 @@ void handle_command(int client_socket, char* command)
 {
     char output[1024];
     
-    // Execute the command and capture the output
-    FILE *fp = popen(command + 6, "r");
-    if (fp == NULL) 
+    if (strncmp(command, "shell ", 6) == 0)
     {
-        strcpy(output, "Command execution failed");
-    }
-    else 
-    {
-        char buf[1024];
-        size_t n;
-        while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) 
+        // Execute the command and capture the output
+        FILE *fp = popen(command + 6, "r");
+        if (fp == NULL) 
         {
-            fwrite(buf, 1, n, stdout);
+            strcpy(output, "Command execution failed");
         }
-        pclose(fp);
+        else 
+        {
+            char buf[1024];
+            size_t n;
+            while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) 
+            {
+                fwrite(buf, 1, n, stdout);
+            }
+            pclose(fp);
+        }
     }
-    
+    else if (strcmp(command, "disconnect") == 0)
+    {
+        // Send response to client and exit loop to terminate connection
+        strcpy(output, "Disconnected from server");
+        send(client_socket, output, strlen(output), 0);
+        return;
+    }
+    else
+    {
+        strcpy(output, "Invalid command");
+    }
+
     // Send the output to the client
     send(client_socket, output, strlen(output), 0);
 }
